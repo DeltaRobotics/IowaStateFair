@@ -17,10 +17,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //import org.firstinspires.ftc.teamcode.RobotHardware;
 
 
-@TeleOp(name="willieSafeTeleOp")
+@TeleOp(name="willieSafeTeleOpNoLift")
 //@Disabled
 
-public class willieSafeTeleOp extends LinearOpMode
+public class willieSafeTeleOpNoLift extends LinearOpMode
 {
     //actuator objects
     public DcMotor motorRF = null;
@@ -128,14 +128,14 @@ public class willieSafeTeleOp extends LinearOpMode
         while (opModeIsActive())
         {
             //speed multiplier for lifted slides
-            if((SlideLeft1.getCurrentPosition() + SlideRight1.getCurrentPosition())/2 > 300)
+            /*if((SlideLeft1.getCurrentPosition() + SlideRight1.getCurrentPosition())/2 > 300)
             {
                 driveSpeed = .3;
             }
             else
             {
                 driveSpeed = .5;
-            }
+            }*/
 
             motorRF.setPower((((-gamepad1.right_stick_y - gamepad1.right_stick_x) * 1) - (gamepad1.left_stick_x * 1))*driveSpeed);
             motorRB.setPower((((-gamepad1.right_stick_y + gamepad1.right_stick_x) * 1) - (gamepad1.left_stick_x * 1))*driveSpeed);
@@ -154,7 +154,7 @@ public class willieSafeTeleOp extends LinearOpMode
             }
 
             //lift raise/lower
-            if (gamepad1.a)
+            /*if (gamepad1.a)
             {
                 slidePose0 = 375;
                 slidePose1 = 375;
@@ -164,12 +164,12 @@ public class willieSafeTeleOp extends LinearOpMode
             else if (gamepad1.b)
             {
                 liftState = LiftState.LOWER_LIFT;
-            }
+            }*/
 
 
 
             //state machine to control lift state and order operations accordingly
-            switch(liftState)
+            /*switch(liftState)
             {
                 //brings lift to specified height while maintaning approximately the same V4B angle
                 case RAISE_LIFT:
@@ -266,7 +266,7 @@ public class willieSafeTeleOp extends LinearOpMode
                     break;
                     */
                 //brings lift down to height of 0
-                case LOWER_LIFT:
+                /*case LOWER_LIFT:
                     slidePose0 = 0;
                     slidePose1 = 0;
                     junctionHeight = 0;
@@ -293,7 +293,7 @@ public class willieSafeTeleOp extends LinearOpMode
                         liftState = LiftState.FLIP_V4B;
                     }
                     break;
-                /*
+
                 //emergency stop, will disable lift by turning off motors and setting all heights to 0
                 case STOP:
                     SlideLeft1.setPower(0);
@@ -313,13 +313,13 @@ public class willieSafeTeleOp extends LinearOpMode
                     SlideRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     SlideRight2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     break;
-                    */
+
 
                 //should never reach this, catch all for bugs in code
                 default:
                     liftState = LiftState.RAISE_LIFT;
             }
-
+            */
             //telemetry
             telemetry.addData("SlideLeft1 Encoder",SlideLeft1.getCurrentPosition());
             telemetry.addData("SlideRight1 Encoder",SlideRight1.getCurrentPosition());
