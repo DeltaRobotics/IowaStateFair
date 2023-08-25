@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 //import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 @TeleOp(name="willieSafeTeleOp")
-//@Disabled
+@Disabled
 
 public class willieSafeTeleOp extends LinearOpMode
 {

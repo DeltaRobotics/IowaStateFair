@@ -17,10 +17,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //import org.firstinspires.ftc.teamcode.RobotHardware;
 
 
-@TeleOp(name="safeShooterBot")
+@TeleOp(name="proShooterBot")
 //@Disabled
 
-public class safeShooterBot extends LinearOpMode {
+public class proShooterBot extends LinearOpMode {
 
     //actuator objects
     public DcMotor motorRF = null;
@@ -34,10 +34,10 @@ public class safeShooterBot extends LinearOpMode {
 
     public double lPower = 0;
     public double rPower = 0;
-
     public double speed = 0.5;
-
     double servoTimeVar = 0;
+
+    int dTime;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,7 +54,7 @@ public class safeShooterBot extends LinearOpMode {
         shooterR = hardwareMap.dcMotor.get("shooterR");
 
         //set up flip bar
-        flipBar.setPosition(.01);
+        flipBar.setPosition(.1);
 
         motorLF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorRB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -74,8 +74,37 @@ public class safeShooterBot extends LinearOpMode {
             motorLF.setPower(speed*(-(-gamepad1.right_stick_x + gamepad1.right_stick_y)) + (gamepad1.left_stick_x));
 
             if(gamepad1.right_bumper){
-                lPower = .4;
-                rPower = .4;
+                lPower = .5;
+                rPower = .5;
+            }
+
+            if(gamepad1.y){
+                lPower = 1;
+                rPower = 1;
+            }
+            
+            if(gamepad1.x){
+                lPower = .75;
+                rPower = .75;
+            }
+
+            if(gamepad1.right_trigger > .5){
+                speed = 1;
+            }
+            if(gamepad1.left_trigger > .5){
+                speed = .5;
+            }
+
+            if(gamepad1.dpad_up && dTime > 3){
+                lPower += 0.05;
+                rPower += 0.05;
+                dTime = 0;
+            }
+
+            if(gamepad1.dpad_down && dTime > 3){
+                lPower -= 0.05;
+                rPower -= 0.05;
+                dTime = 0;
             }
 
             if(gamepad1.left_bumper){
@@ -94,8 +123,15 @@ public class safeShooterBot extends LinearOpMode {
                 flipBar.setPosition(.1);
             }
 
+            dTime += 1;
+
             shooterL.setPower(lPower);
             shooterR.setPower(rPower);
+
+            telemetry.addData("power", lPower);
+            telemetry.addData("dtime", dTime);
+            telemetry.addData("frPower", speed*(-(-gamepad1.right_stick_y - gamepad1.right_stick_x) + (gamepad1.left_stick_x)));
+            telemetry.update();
         }
     }
 }
