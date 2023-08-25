@@ -48,6 +48,14 @@ public class robotIn30HoursHomeschool extends LinearOpMode {
 
         while (opModeIsActive())
         {
+            if (gamepad1.dpad_up){
+                speed = 1;
+            }
+
+            if (gamepad1.dpad_right){
+                speed = .75;
+            }
+
             motorRF.setPower(speed*((-gamepad1.right_stick_y - gamepad1.right_stick_x) - (gamepad1.left_stick_x)));
             motorRB.setPower(speed*(-(-gamepad1.right_stick_x + gamepad1.right_stick_y) - (gamepad1.left_stick_x)));
             motorLB.setPower(speed*((gamepad1.right_stick_y + gamepad1.right_stick_x) - (gamepad1.left_stick_x)));
