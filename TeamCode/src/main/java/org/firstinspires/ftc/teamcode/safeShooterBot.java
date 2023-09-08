@@ -31,18 +31,23 @@ public class safeShooterBot extends LinearOpMode {
     // looking from ball loading area
     public DcMotor shooterL = null;
     public DcMotor shooterR = null;
+    public DcMotor intake = null;
 
     public double lPower = 0;
     public double rPower = 0;
 
     public double speed = 0.5;
 
+    boolean intakeMoving = false;
+
     double servoTimeVar = 0;
+    double intakeTimeVar = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         ElapsedTime servoTime = new ElapsedTime();
+        ElapsedTime intakeTime = new ElapsedTime();
 
         //actuator declarations
         motorRF = hardwareMap.dcMotor.get("motorRF");
@@ -52,9 +57,11 @@ public class safeShooterBot extends LinearOpMode {
         flipBar = hardwareMap.servo.get("flipBar");
         shooterL = hardwareMap.dcMotor.get("shooterL");
         shooterR = hardwareMap.dcMotor.get("shooterR");
+        intake = hardwareMap.dcMotor.get("intake");
+
 
         //set up flip bar
-        flipBar.setPosition(.1);
+        flipBar.setPosition(.01);
 
         motorLF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorRB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -63,6 +70,7 @@ public class safeShooterBot extends LinearOpMode {
         shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterL.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
@@ -74,8 +82,8 @@ public class safeShooterBot extends LinearOpMode {
             motorLF.setPower(speed*(-(-gamepad1.right_stick_x + gamepad1.right_stick_y)) + (gamepad1.left_stick_x));
 
             if(gamepad1.right_bumper){
-                lPower = .5;
-                rPower = .5;
+                lPower = .4;
+                rPower = 1;
             }
 
             if(gamepad1.left_bumper){
@@ -91,8 +99,28 @@ public class safeShooterBot extends LinearOpMode {
             }
 
             if(servoTimeVar + 250 < servoTime.milliseconds()){
-                flipBar.setPosition(.1);
+                flipBar.setPosition(.01);
             }
+
+            if(gamepad1.b){
+                intake.setPower(-0.1);
+                intakeTimeVar = 0;
+                intakeTimeVar = servoTime.milliseconds();
+                intakeMoving = true;
+
+            }
+
+            if((intakeTimeVar + 250 < servoTime.milliseconds()) && intakeMoving){
+                intake.setPower(0.1);
+                intakeTimeVar = 0;
+                intakeTimeVar = servoTime.milliseconds();
+                intakeMoving = false;
+            }
+
+            if((intakeTimeVar + 250 < servoTime.milliseconds()) && !intakeMoving){
+                intake.setPower(0);
+            }
+
 
             shooterL.setPower(lPower);
             shooterR.setPower(rPower);
