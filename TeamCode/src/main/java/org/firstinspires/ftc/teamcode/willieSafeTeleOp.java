@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 //import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 @TeleOp(name="willieSafeTeleOp")
-//@Disabled
+@Disabled
 
 public class willieSafeTeleOp extends LinearOpMode
 {
@@ -197,7 +198,7 @@ public class willieSafeTeleOp extends LinearOpMode
                         liftState = LiftState.FLIP_V4B;
                     }
                     break;
-
+                /*
                 //when lift reaches desired height, V4B is controlled
                 //V4B can be adjusted as long as in this state
                 case FLIP_V4B:
@@ -264,7 +265,7 @@ public class willieSafeTeleOp extends LinearOpMode
                         liftState = LiftState.LOWER_LIFT;
                     }
                     break;
-
+                    */
                 //brings lift down to height of 0
                 case LOWER_LIFT:
                     slidePose0 = 0;
@@ -293,7 +294,7 @@ public class willieSafeTeleOp extends LinearOpMode
                         liftState = LiftState.FLIP_V4B;
                     }
                     break;
-
+                /*
                 //emergency stop, will disable lift by turning off motors and setting all heights to 0
                 case STOP:
                     SlideLeft1.setPower(0);
@@ -313,7 +314,7 @@ public class willieSafeTeleOp extends LinearOpMode
                     SlideRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     SlideRight2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     break;
-
+                    */
 
                 //should never reach this, catch all for bugs in code
                 default:

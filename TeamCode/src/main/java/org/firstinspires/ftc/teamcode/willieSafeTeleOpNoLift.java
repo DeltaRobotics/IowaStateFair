@@ -18,10 +18,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //import org.firstinspires.ftc.teamcode.RobotHardware;
 
 
-@TeleOp(name="willieTeleOp")
+@TeleOp(name="willieSafeTeleOpNoLift")
 @Disabled
 
-public class willieTeleOp extends LinearOpMode
+public class willieSafeTeleOpNoLift extends LinearOpMode
 {
     //actuator objects
     public DcMotor motorRF = null;
@@ -42,7 +42,7 @@ public class willieTeleOp extends LinearOpMode
     public NormalizedColorSensor color = null;
 
     //drive variables
-    double driveSpeed = 1;
+    double driveSpeed = .5;
 
     //lift variables
     public enum LiftState
@@ -64,18 +64,6 @@ public class willieTeleOp extends LinearOpMode
     int V4BAngle = 0;
     int junctionHeight = 0;
 
-    //autoGrab variables
-    public enum AutoGrab
-    {
-        DISTANCE_CHECK,
-        GRAB_CONE,
-        RAISE_LIFT,
-        RELEASE_CONE,
-        LOWER_LIFT,
-        EMPTY_CLAW_CHECK,
-        MANUAL
-    }
-    AutoGrab autoGrab = AutoGrab.DISTANCE_CHECK;
     double servoTimeVar = 0;
 
     //toggles
@@ -141,229 +129,48 @@ public class willieTeleOp extends LinearOpMode
         while (opModeIsActive())
         {
             //speed multiplier for lifted slides
-            if((SlideLeft1.getCurrentPosition() + SlideRight1.getCurrentPosition())/2 > 300)
+            /*if((SlideLeft1.getCurrentPosition() + SlideRight1.getCurrentPosition())/2 > 300)
             {
-                driveSpeed = .95;
+                driveSpeed = .3;
             }
             else
             {
-                driveSpeed = 1;
-            }
-
-            //Todo switch to mech
-            //wheel powers
-            //motorRF.setPower(driveSpeed * (gamepad1.right_stick_y + gamepad1.left_stick_x * 1));
-            //motorRB.setPower(driveSpeed * (-(gamepad1.right_stick_y + gamepad1.left_stick_x * 1)));
-            //motorLB.setPower(driveSpeed * (gamepad1.right_stick_y - gamepad1.left_stick_x * 1));
-            //motorLF.setPower(driveSpeed * (-(gamepad1.right_stick_y - gamepad1.left_stick_x * 1)));
+                driveSpeed = .5;
+            }*/
 
             motorRF.setPower((((-gamepad1.right_stick_y - gamepad1.right_stick_x) * 1) - (gamepad1.left_stick_x * 1))*driveSpeed);
             motorRB.setPower((((-gamepad1.right_stick_y + gamepad1.right_stick_x) * 1) - (gamepad1.left_stick_x * 1))*driveSpeed);
             motorLB.setPower((((-gamepad1.right_stick_y - gamepad1.right_stick_x) * 1) + (gamepad1.left_stick_x * 1))*driveSpeed);
             motorLF.setPower((((-gamepad1.right_stick_y + gamepad1.right_stick_x) * 1) + (gamepad1.left_stick_x * 1))*driveSpeed);
 
-
-
-            //gamepad inputs for FSM state changes
-            if (gamepad1.left_trigger > .5)
+            if (gamepad1.left_bumper)
             {
-                autoGrab = AutoGrab.MANUAL;
+                Claw0.setPosition(.5);
+                Claw1.setPosition(.5);
             }
-            else if (gamepad1.right_trigger > .5)
+            else if (gamepad1.right_bumper)
             {
-                autoGrab = AutoGrab.DISTANCE_CHECK;
-            }
-
-            //FSM for auto grab actions
-            switch (autoGrab)
-            {
-                //see if a cone is in the intake
-                case DISTANCE_CHECK:
-                    if (((DistanceSensor) color).getDistance(DistanceUnit.CM) < 6)
-                    {
-                        autoGrab = AutoGrab.GRAB_CONE;
-                    }
-                break;
-
-                //close claw
-                case GRAB_CONE:
-                    if (servoTimeVar == 0) {
-                        servoTimeVar = servoTime.milliseconds();
-                    }
-                    Claw0.setPosition(.5);
-                    Claw1.setPosition(.5);
-
-                    if (servoTimeVar + 250 < servoTime.milliseconds())
-                    {
-                        servoTimeVar = 0;
-                        autoGrab = AutoGrab.RAISE_LIFT;
-                    }
-                break;
-
-                //raise lift over any stacked cone
-                case RAISE_LIFT:
-                    slidePose0 += 150;
-                    slidePose1 += 150;
-                    liftState = LiftState.RAISE_LIFT;
-                    autoGrab = AutoGrab.RELEASE_CONE;
-                break;
-
-                //driver decides when cone is dropped after manipulator puts lift at the correct height
-                case RELEASE_CONE:
-                    if (gamepad1.right_bumper)
-                    {
-                    Claw0.setPosition(.38);
-                    Claw1.setPosition(.62);
-                    autoGrab = AutoGrab.LOWER_LIFT;
-                    }
-                break;
-
-                //0.5s after cone is dropped, lift will come down on its own using the lift FSM
-                case LOWER_LIFT:
-                    if (servoTimeVar == 0) {
-                        servoTimeVar = servoTime.milliseconds();
-                    }
-
-                    if (servoTimeVar + 500 < servoTime.milliseconds())
-                    {
-                        //Claw0.setPosition(.5);
-                        //Claw1.setPosition(.5);
-                        servoTimeVar = 0;
-                        liftState = LiftState.LOWER_LIFT;
-                        autoGrab = AutoGrab.EMPTY_CLAW_CHECK;
-                    }
-                break;
-
-                //ensures claw does not immediately close if distance sensor sees something
-                //could be replaced with a button to reactivate autograb function
-                case EMPTY_CLAW_CHECK:
-                    if (!(((DistanceSensor) color).getDistance(DistanceUnit.CM) < 6))
-                    {
-                        autoGrab = AutoGrab.DISTANCE_CHECK;
-                    }
-                break;
-
-                //manual traditional control of the arm
-                case MANUAL:
-                    //claw grab/release
-                    if (gamepad1.left_bumper)
-                    {
-                        Claw0.setPosition(.5);
-                        Claw1.setPosition(.5);
-                    }
-                    else if (gamepad1.right_bumper)
-                    {
-                        Claw0.setPosition(.38);
-                        Claw1.setPosition(.62);
-                    }
-                break;
+                Claw0.setPosition(.38);
+                Claw1.setPosition(.62);
             }
 
-
-            //lift preset control inputs
-            if (gamepad2.back)
-            {
-                liftState = LiftState.STOP;
-            }
-            else if (gamepad2.start)
-            {
-                liftState = LiftState.RESET_ENCODERS;
-            }
-            else if (gamepad2.a)
-            {
-                liftState = LiftState.LOWER_LIFT;
-            }
-            else if (gamepad2.b)
+            //lift raise/lower
+            /*if (gamepad1.a)
             {
                 slidePose0 = 375;
                 slidePose1 = 375;
                 junctionHeight = 375;
                 liftState = LiftState.RAISE_LIFT;
             }
-            else if (gamepad2.x)
+            else if (gamepad1.b)
             {
-                slidePose0 = 600;
-                slidePose1 = 600;
-                junctionHeight = 600;
-                liftState = LiftState.RAISE_LIFT;
-            }
-            else if (gamepad2.y)
-            {
-                slidePose0 = 835;
-                slidePose1 = 835;
-                junctionHeight = 835;
-                liftState = LiftState.RAISE_LIFT;
-            }
+                liftState = LiftState.LOWER_LIFT;
+            }*/
 
-            //lift quick adjust
-            if (gamepad2.dpad_up && DpadUpToggle)
-            {
-                slidePose0 += 30;
-                slidePose1 += 30;
-                liftState = LiftState.RAISE_LIFT;
-                DpadUpToggle = false;
-            }
-            else if (!gamepad2.dpad_up && !DpadUpToggle)
-            {
-                DpadUpToggle = true;
-            }
 
-            if (gamepad2.dpad_down && DpadDownToggle)
-            {
-                slidePose0 -= 30;
-                slidePose1 -= 30;
-                liftState = LiftState.RAISE_LIFT;
-                DpadDownToggle = false;
-            }
-            else if (!gamepad2.dpad_down && !DpadDownToggle)
-            {
-                DpadDownToggle = true;
-            }
-
-            //lift fine adjust
-            if (gamepad2.right_stick_y < -.5)
-            {
-                slidePose0 += 6;
-                slidePose1 += 6;
-                liftState = LiftState.RAISE_LIFT;
-            }
-            else if (gamepad2.right_stick_y > .5)
-            {
-                slidePose0 -= 6;
-                slidePose1 -= 6;
-                liftState = LiftState.RAISE_LIFT;
-            }
-
-            //V4B preset control inputs
-            /*
-            if (gamepad2.right_bumper)
-            {
-                V4BPose0 = 0;
-                V4BPose1 = 0;
-            }
-
-            else if (gamepad2.left_bumper)
-            {
-                V4BPose0 = -140;
-                V4BPose1 = 140;
-            }
-
-            //V4B fine adjust
-            if (gamepad2.right_trigger > .5)
-            {
-                V4BPose0 += 1;
-                V4BPose1 -= 1;
-            }
-            else if (gamepad2.left_trigger > .5)
-            {
-                V4BPose0 -= 1;
-                V4BPose1 += 1;
-            }
-
-             */
 
             //state machine to control lift state and order operations accordingly
-            switch(liftState)
+            /*switch(liftState)
             {
                 //brings lift to specified height while maintaning approximately the same V4B angle
                 case RAISE_LIFT:
@@ -385,13 +192,13 @@ public class willieTeleOp extends LinearOpMode
                     SlideRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     if (SlideLeft1.getCurrentPosition() > ((slidePose0 + V4BAngle)-30) && SlideLeft1.getCurrentPosition() < ((slidePose0 + V4BAngle)+30)
-                    &&  SlideRight1.getCurrentPosition() > ((slidePose1 - V4BAngle)-30) && SlideRight1.getCurrentPosition() < ((slidePose1 - V4BAngle)+30))
+                            &&  SlideRight1.getCurrentPosition() > ((slidePose1 - V4BAngle)-30) && SlideRight1.getCurrentPosition() < ((slidePose1 - V4BAngle)+30))
                     {
                         V4BAngle = 0;
                         liftState = LiftState.FLIP_V4B;
                     }
-                break;
-
+                    break;
+                /*
                 //when lift reaches desired height, V4B is controlled
                 //V4B can be adjusted as long as in this state
                 case FLIP_V4B:
@@ -407,7 +214,7 @@ public class willieTeleOp extends LinearOpMode
                     SlideRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     SlideLeft2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     SlideRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                break;
+                    break;
 
                 case RESET_LIFT:
                     if (V4BAngle == 0)
@@ -453,14 +260,14 @@ public class willieTeleOp extends LinearOpMode
                     SlideRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     if (SlideLeft1.getCurrentPosition() > ((junctionHeight + V4BPose0)-30) && SlideLeft1.getCurrentPosition() < ((junctionHeight + V4BPose0)+30)
-                    &&  SlideRight1.getCurrentPosition() > ((junctionHeight + V4BPose1)-30) && SlideRight1.getCurrentPosition() < ((junctionHeight + V4BPose1)+30))
+                            &&  SlideRight1.getCurrentPosition() > ((junctionHeight + V4BPose1)-30) && SlideRight1.getCurrentPosition() < ((junctionHeight + V4BPose1)+30))
                     {
                         liftState = LiftState.LOWER_LIFT;
                     }
-                break;
-
+                    break;
+                    */
                 //brings lift down to height of 0
-                case LOWER_LIFT:
+                /*case LOWER_LIFT:
                     slidePose0 = 0;
                     slidePose1 = 0;
                     junctionHeight = 0;
@@ -478,7 +285,7 @@ public class willieTeleOp extends LinearOpMode
                     SlideRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     if (SlideLeft1.getCurrentPosition() > ((slidePose0 + V4BPose0)-30) && SlideLeft1.getCurrentPosition() < ((slidePose0 + V4BPose0)+30)
-                    &&  SlideRight1.getCurrentPosition() > ((slidePose1 + V4BPose1)-30) && SlideRight1.getCurrentPosition() < ((slidePose1 + V4BPose1)+30))
+                            &&  SlideRight1.getCurrentPosition() > ((slidePose1 + V4BPose1)-30) && SlideRight1.getCurrentPosition() < ((slidePose1 + V4BPose1)+30))
                     {
                         V4BPose0 = 0;
                         V4BPose1 = 0;
@@ -486,7 +293,7 @@ public class willieTeleOp extends LinearOpMode
                         Claw1.setPosition(.62);
                         liftState = LiftState.FLIP_V4B;
                     }
-                break;
+                    break;
 
                 //emergency stop, will disable lift by turning off motors and setting all heights to 0
                 case STOP:
@@ -499,21 +306,21 @@ public class willieTeleOp extends LinearOpMode
                     V4BPose0 = 0;
                     V4BPose1 = 0;
                     junctionHeight = 0;
-                break;
+                    break;
 
                 case RESET_ENCODERS:
                     SlideLeft1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     SlideLeft2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     SlideRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     SlideRight2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                break;
+                    break;
 
 
                 //should never reach this, catch all for bugs in code
                 default:
                     liftState = LiftState.RAISE_LIFT;
             }
-
+            */
             //telemetry
             telemetry.addData("SlideLeft1 Encoder",SlideLeft1.getCurrentPosition());
             telemetry.addData("SlideRight1 Encoder",SlideRight1.getCurrentPosition());
