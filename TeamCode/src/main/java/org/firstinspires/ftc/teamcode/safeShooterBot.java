@@ -33,12 +33,11 @@ public class safeShooterBot extends LinearOpMode {
     public DcMotor shooterR = null;
     public DcMotor intake = null;
 
+
     public double lPower = 0;
     public double rPower = 0;
 
     public double speed = 0.5;
-
-    boolean intakeMoving = false;
 
     double servoTimeVar = 0;
     double intakeTimeVar = 0;
@@ -59,7 +58,6 @@ public class safeShooterBot extends LinearOpMode {
         shooterR = hardwareMap.dcMotor.get("shooterR");
         intake = hardwareMap.dcMotor.get("intake");
 
-
         //set up flip bar
         flipBar.setPosition(.01);
 
@@ -71,6 +69,8 @@ public class safeShooterBot extends LinearOpMode {
         shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterL.setDirection(DcMotorSimple.Direction.REVERSE);
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         waitForStart();
 
@@ -103,22 +103,20 @@ public class safeShooterBot extends LinearOpMode {
             }
 
             if(gamepad1.b){
-                intake.setPower(-0.1);
-                intakeTimeVar = 0;
-                intakeTimeVar = servoTime.milliseconds();
-                intakeMoving = true;
-
+                //button to move intake down
+                intake.setTargetPosition(330);
+                intake.setPower(.5);
+                intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-
-            if((intakeTimeVar + 250 < servoTime.milliseconds()) && intakeMoving){
-                intake.setPower(0.1);
-                intakeTimeVar = 0;
-                intakeTimeVar = servoTime.milliseconds();
-                intakeMoving = false;
-            }
-
-            if((intakeTimeVar + 250 < servoTime.milliseconds()) && !intakeMoving){
+            else if (intake.getCurrentPosition() > -10 && intake.getCurrentPosition() < 10){
                 intake.setPower(0);
+            }
+
+            if(gamepad1.x){
+                //button to move intake up
+                intake.setTargetPosition(10);
+                intake.setPower(.5);
+                intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
 
